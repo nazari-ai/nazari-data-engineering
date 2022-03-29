@@ -6,7 +6,7 @@ from operator import itemgetter
 
 username= "choiceCoin"
 
-ACCESS_TOKEN= "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"
+ACCESS_TOKEN= "GITHUB_ACCESS_TOKEN"
 
 g= Github(ACCESS_TOKEN)
 
