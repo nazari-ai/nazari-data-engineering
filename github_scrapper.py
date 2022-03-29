@@ -2,10 +2,11 @@ import base64
 import json
 from github import Github
 from pprint import pprint
+from operator import itemgetter
 
 username= "choiceCoin"
 
-ACCESS_TOKEN= "GITHUB_ACCESS_TOKEN"
+ACCESS_TOKEN= "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"
 
 g= Github(ACCESS_TOKEN)
 
@@ -45,15 +46,24 @@ class Github_api():
             count_of_commit += 1
         return count_of_commit
 
+
+    def contributors_count(self):
+        repo= self.repo
+        count_of_contributors= 0
+        contributors = repo.get_contributors()
+        for i in contributors:
+            count_of_contributors += 1
+        return count_of_contributors
+
+
     def analyze_traffic(self):
         repo= self.repo
         watch_dict= {}
         clones = repo.get_clones_traffic(per="day")
         views = repo.get_views_traffic(per="day")
-        best_day = max(*list((day.count, day.timestamp) for day in views["views"]), key=operator.itemgetter(0))
+        best_day = max(*list((day.count, day.timestamp) for day in views["views"]), key=itemgetter(0))
         watch_dict.update({"views": views, "clones_count": clones["count"], "unique_clones": clones["uniques"],
-            "views_count": views["count"], "unique_views": views["uniques"], "highest_views": best_day[0],
-            "day_of_highest_views": best_day[1]})
+            "views_count": views["count"], "unique_views": views["uniques"]})
         return watch_dict
 
     def print_repo(self):
@@ -67,6 +77,8 @@ class Github_api():
             data["Language"]= repo.language
             data["Number_of_forks"]= repo.forks
             data["Number_of_stars"] = repo.stargazers_count
+            data['watchers'] = repo.watchers_count
+            data['Number_of_contributors']= Github_api(repo).contributors_count()
             data["Number_of_commits"]= Github_api(repo).commits()
             data["Issues"]= Github_api(repo).issues()
             data["Pull_Requests"]= Github_api(repo).pull_requests()
