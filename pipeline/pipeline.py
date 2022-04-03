@@ -1,3 +1,4 @@
+## Imports
 import ast
 from importlib.resources import path
 import os
@@ -9,6 +10,7 @@ from beam_nuggets.io import relational_db
 from apache_beam import window 
 from apache_beam.options.pipeline_options import PipelineOptions, StandardOptions, SetupOptions
 from click import parser
+## config keys
 from pipeline_config import (
     INPUT_SUBSCRIPTION,
     SERVICE_ACCOUNT_PATH,
@@ -25,6 +27,8 @@ path_args, pipeline_args = parser.parse_known_args()
 
 
 def run(path_arguments, pipeline_argumemts):
+    """Pipeline function"""
+    
     options = PipelineOptions(pipeline_argumemts)
     options.view_as(StandardOptions).streaming = True
     options.view_as(SetupOptions).save_main_session = True
