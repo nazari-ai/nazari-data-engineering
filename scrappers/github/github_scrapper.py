@@ -19,7 +19,7 @@ class Github_api():
     and outputs all scraped activities as a nested json collection.
 
     Activities are; 
-    -Pull reuqests, Issues, Contibutors, Commits, Watch, Stars, Languages, Forks, Repo name and secription, and date related data.
+    -Pull reuqests, Issues, Contibutors, Commits, Watch, Stars, Languages, Forks, Repo name and description, and date related data.
 
     """
     def __init__(self, repo):
