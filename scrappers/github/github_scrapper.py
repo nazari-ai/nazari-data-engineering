@@ -7,17 +7,27 @@ from sqlalchemy import create_engine, exists, MetaData, Table, insert
 # from sqlalchemy_utils import database_exists, create_database
 from github_setup import postgresql as db_config, github as github_config
 
-
+#Your github access token
 ACCESS_TOKEN = github_config['access_token']
 
 g = Github(ACCESS_TOKEN)
             
 
 class Github_api():
+    """
+    This github api class takes in the repo names, scrapes the activities attached to each repo,
+    and outputs all scraped activities as a nested json collection.
+
+    Activities are; 
+    -Pull reuqests, Issues, Contibutors, Commits, Watch, Stars, Languages, Forks, Repo name and secription, and date related data.
+
+    """
     def __init__(self, repo):
         self.repo= repo
 
+
     def pull_requests(self):
+        """Takes in the initialized repo name, returns the names of open prs and the count"""
         repo= self.repo
         count_of_pr= 0
         pr_dict= {"pr_name": [], "pr_count":[]}
@@ -29,6 +39,7 @@ class Github_api():
         return pr_dict
 
     def issues(self):
+        """Takes in the initialized repo name, returns the names of open issues and the count"""
         repo= self.repo
         issues_dict= {}
         count_of_issues= 0
@@ -40,6 +51,7 @@ class Github_api():
         return issues_dict
 
     def commits(self):
+        """Takes in the initialized repo name, and returns the count of all commits"""
         repo= self.repo
         count_of_commit= 0
         commit = repo.get_commits()
@@ -48,6 +60,7 @@ class Github_api():
         return count_of_commit
 
     def contributors_count(self):
+        """Takes in the initialized repo name, and returns the count of contributors"""
         repo= self.repo
         count_of_contributors= 0
         contributors = repo.get_contributors()
@@ -55,7 +68,10 @@ class Github_api():
             count_of_contributors += 1
         return count_of_contributors
 
+
     def analyze_traffic(self):
+        """Takes in the initialized repo name, returns the count of clones, uniques clones, count of views, unique views,
+        day and time with the highest number of views"""
         repo= self.repo
         watch_dict= {}
         clones = repo.get_clones_traffic(per="day")
@@ -66,7 +82,9 @@ class Github_api():
             "day_of_highest_views": best_day[1]})
         return watch_dict
 
+
     def get_data(self):
+        """This returns a nested json of all scraped data by accessing the entire activities"""
         repo= self.repo
         try:
             data= {}
@@ -92,14 +110,11 @@ class Github_api():
         except AttributeError as error:
             print ("Error:", error)
 
-# for repo in user.get_repos():
-#     create_engine= Github_api(repo)
-#     print(create_engine.get_data())
-#     print("="*100)
 
 
 
 def main():
+    """The github data gets ingested here into the postgres database"""
 
     usernames = ['choiceCoin']
 
