@@ -1,4 +1,5 @@
 # Imports 
+import re
 from base64 import encode
 import datetime
 import json
@@ -47,12 +48,11 @@ def write_to_pubsub(data:dict):
     try:
         if data["lang"] == "en": ## Only english tweets
             publisher.publish(pubsub_cloudsql, data=json.dumps({
-                "id": data["id"],
+                "tweet_id": data["tweet_id"],
+		"asa_id": data["asa_id"],
                 "user_id": data["user_id"],
                 "text": data["text"],
-                # "posted_at": datetime.datetime.fromtimestamp(data["created_at"]).strftime('%Y-%m-%d %H:%M:%S'),
-                "retweets": data["retweet_count"],
-                "likes": data["favorite_count"],
+                "posted_at": datetime.datetime.fromtimestamp(data["created_at"]).strftime('%Y-%m-%d %H:%M:%S'),
                 "hashtags": data["hashtags"],
 
                 }).encode("utf-8"))
@@ -60,15 +60,21 @@ def write_to_pubsub(data:dict):
         logging.info("Streaming stopped")
         raise
 
+
+## List of key words
+lst_hashtags = ['algofiorg', 'shosha crypto', 'shoshacrypto', 'algomint_io',
+ 'algomint io', 'choice coin', 'choicecoin', 'xtz_esports', 'xtz esports', 
+'yieldly finance', 'yiedlyfinance', 'algogems nft', 'algogemsnft']
+
 # Method to format a tweet from tweepy
-def reformat_tweet(tweet):
+def reformat_tweet(tweet, lst_hashtags=lst_hashtags):
 
     """ Format tweets object into prefered Json schema """
 
     x = tweet
 
     processed_doc = {
-        "id": x["id"],
+        "tweet_id": x["id"],
         "lang": x["lang"],
         "retweeted_id": x["retweeted_status"]["id"] if "retweeted_status" in x else None,
         "favorite_count": x["favorite_count"] if "favorite_count" in x else 0,
@@ -99,6 +105,9 @@ def reformat_tweet(tweet):
     else:
         processed_doc["text"] = x["text"]
 
+    word_pattern = 'algofiorg|shosha crypto|shoshacryto|algomint_io|algomint io|choice coin|choicecoin|xtz_esports|xtz esports|yieldly finance|yiedlyfinance|algogems nft|algogemsnft'
+    processed_doc["asa_id"] = re.findall(word_pattern, processed_doc['text'], flags=re.IGNORECASE) 
+
     return processed_doc
 
 # Custom listener class
@@ -123,10 +132,9 @@ class StdOutListener(StreamListener):
 
 
 logging.getLogger().setLevel(logging.INFO)
+
 # Start listening
 
-## List of key words
-lst_hashtags = ['Binance', 'Crypto', 'crypto currency', 'Algorand', 'Algorand standard asset']
 ## Listerner object
 l = StdOutListener()
 
